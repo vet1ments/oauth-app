@@ -20,13 +20,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LoginService_Login_FullMethodName = "/oauthapp.v1.LoginService/Login"
+	LoginService_GetLoginPage_FullMethodName = "/oauthapp.v1.LoginService/GetLoginPage"
+	LoginService_Login_FullMethodName        = "/oauthapp.v1.LoginService/Login"
 )
 
 // LoginServiceClient is the client API for LoginService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LoginServiceClient interface {
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+	GetLoginPage(ctx context.Context, in *GetLoginPageRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 }
 
@@ -36,6 +42,16 @@ type loginServiceClient struct {
 
 func NewLoginServiceClient(cc grpc.ClientConnInterface) LoginServiceClient {
 	return &loginServiceClient{cc}
+}
+
+func (c *loginServiceClient) GetLoginPage(ctx context.Context, in *GetLoginPageRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(httpbody.HttpBody)
+	err := c.cc.Invoke(ctx, LoginService_GetLoginPage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *loginServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error) {
@@ -52,6 +68,11 @@ func (c *loginServiceClient) Login(ctx context.Context, in *LoginRequest, opts .
 // All implementations must embed UnimplementedLoginServiceServer
 // for forward compatibility.
 type LoginServiceServer interface {
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+	GetLoginPage(context.Context, *GetLoginPageRequest) (*httpbody.HttpBody, error)
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	Login(context.Context, *LoginRequest) (*httpbody.HttpBody, error)
 	mustEmbedUnimplementedLoginServiceServer()
 }
@@ -63,6 +84,9 @@ type LoginServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedLoginServiceServer struct{}
 
+func (UnimplementedLoginServiceServer) GetLoginPage(context.Context, *GetLoginPageRequest) (*httpbody.HttpBody, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLoginPage not implemented")
+}
 func (UnimplementedLoginServiceServer) Login(context.Context, *LoginRequest) (*httpbody.HttpBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
@@ -85,6 +109,24 @@ func RegisterLoginServiceServer(s grpc.ServiceRegistrar, srv LoginServiceServer)
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&LoginService_ServiceDesc, srv)
+}
+
+func _LoginService_GetLoginPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLoginPageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).GetLoginPage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_GetLoginPage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).GetLoginPage(ctx, req.(*GetLoginPageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _LoginService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -113,6 +155,10 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*LoginServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetLoginPage",
+			Handler:    _LoginService_GetLoginPage_Handler,
+		},
+		{
 			MethodName: "Login",
 			Handler:    _LoginService_Login_Handler,
 		},
@@ -129,6 +175,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SocialCallbackServiceClient interface {
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	Callback(ctx context.Context, in *CallbackRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 }
 
@@ -154,6 +202,8 @@ func (c *socialCallbackServiceClient) Callback(ctx context.Context, in *Callback
 // All implementations must embed UnimplementedSocialCallbackServiceServer
 // for forward compatibility.
 type SocialCallbackServiceServer interface {
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	Callback(context.Context, *CallbackRequest) (*httpbody.HttpBody, error)
 	mustEmbedUnimplementedSocialCallbackServiceServer()
 }
